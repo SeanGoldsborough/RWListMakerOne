@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
-class ListSelectionRecyclerViewAdapter : RecyclerView.Adapter<ListSelectionViewHolder>() {
+class ListSelectionRecyclerViewAdapter(private val lists : ArrayList<TaskList>) : RecyclerView.Adapter<ListSelectionViewHolder>() {
 
     val listTitles = arrayOf(
         "blah", "blee", "bloop", "blah",
@@ -21,12 +21,17 @@ class ListSelectionRecyclerViewAdapter : RecyclerView.Adapter<ListSelectionViewH
     }
 
     override fun getItemCount(): Int {
-        return listTitles.size
+        return lists.size
     }
 
     override fun onBindViewHolder(holder: ListSelectionViewHolder, position: Int) {
         holder.listPosition.text = (position + 1).toString()
-        holder.listTitle.text = listTitles[position]
+        holder.listTitle.text = lists.get(position).name
+    }
+
+    fun addList(list: TaskList) {
+        lists.add(list)
+        notifyItemInserted(lists.size-1)
     }
 
 
