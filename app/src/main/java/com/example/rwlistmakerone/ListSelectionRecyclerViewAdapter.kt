@@ -34,5 +34,11 @@ class ListSelectionRecyclerViewAdapter(private val lists : ArrayList<TaskList>) 
         notifyItemInserted(lists.size-1)
     }
 
+    fun removeList(list: TaskList) {
+        lists.remove(list)
+        //notifyItemInserted(lists.size-1)
+        notifyItemRemoved(lists.size-1)
+    }
+
 
 }

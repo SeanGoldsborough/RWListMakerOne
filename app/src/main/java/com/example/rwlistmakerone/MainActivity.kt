@@ -1,19 +1,25 @@
 package com.example.rwlistmakerone
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
+import android.util.Log
 import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
+
+    private val TAG = MainActivity::class.java.simpleName
 
     lateinit var listsRecyclerView: RecyclerView
 
@@ -29,6 +35,8 @@ class MainActivity : AppCompatActivity() {
         listsRecyclerView = findViewById<RecyclerView>(R.id.lists_recyclerview)
         listsRecyclerView.layoutManager = LinearLayoutManager(this)
         listsRecyclerView.adapter = ListSelectionRecyclerViewAdapter(lists)
+
+        setRecyclerViewItemTouchListener()
 
         fab.setOnClickListener { view ->
             //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
@@ -78,5 +86,56 @@ class MainActivity : AppCompatActivity() {
         }
         builder.create().show()
 
+    }
+
+    private fun setRecyclerViewItemTouchListener() {
+
+        //1
+        val itemTouchCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, viewHolder1: RecyclerView.ViewHolder): Boolean {
+                //2
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+                //3
+                val position = viewHolder.adapterPosition
+                val pref : SharedPreferences = getApplicationContext().getSharedPreferences("E", Context.MODE_PRIVATE)
+
+                val editor = pref.edit()
+
+
+                val list = listDataManager
+
+                val allLists = list.readLists()
+                    //list.removeFromLists(position)
+               allLists.removeAt(position)
+
+                //allLists.removeAt(0)
+               // (allLists.count() - 3)
+                val arrayCount = allLists.count()
+                //val listCount = list.count()
+                Log.d(TAG, "onCreate called. Score is: $arrayCount & $position)")
+
+                val recyclerView = listsRecyclerView
+                val recyclerAdapter = recyclerView.adapter
+                    //listsRecyclerView.adapter as ListSelectionRecyclerViewAdapter
+
+                recyclerAdapter!!.notifyItemRemoved(position)
+               // recyclerView.adapter!!.notifyItemRemoved(position)
+              // editor.remove("position")
+                //allLists.removeAt(0)
+                editor.commit()
+            }
+        }
+
+        //4
+        //val recyclerAdapter = listsRecyclerView.adapter as ListSelectionRecyclerViewAdapter
+        val itemTouchHelper = ItemTouchHelper(itemTouchCallback)
+        itemTouchHelper.attachToRecyclerView(listsRecyclerView)
+        val pref : SharedPreferences = getApplicationContext().getSharedPreferences("E", Context.MODE_PRIVATE)
+
+        val editor = pref.edit()
+        editor.commit()
     }
 }
