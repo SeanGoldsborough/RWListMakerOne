@@ -4,7 +4,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
-class ListSelectionRecyclerViewAdapter(private val lists : ArrayList<TaskList>) : RecyclerView.Adapter<ListSelectionViewHolder>() {
+class ListSelectionRecyclerViewAdapter(private val lists : ArrayList<TaskList>,
+                                       val clickListener: ListSelectionRecyclerViewClickListener)
+                                        : RecyclerView.Adapter<ListSelectionViewHolder>() {
 
     val listTitles = arrayOf(
         "blah", "blee", "bloop", "blah",
@@ -13,6 +15,10 @@ class ListSelectionRecyclerViewAdapter(private val lists : ArrayList<TaskList>) 
         "blah", "blee", "bloop", "blah",
         "blee", "bloop", "blah", "blee",
         "bloop", "blah", "blee", "bloop")
+
+    interface ListSelectionRecyclerViewClickListener{
+        fun listItemClicked(list:TaskList)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ListSelectionViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -26,7 +32,10 @@ class ListSelectionRecyclerViewAdapter(private val lists : ArrayList<TaskList>) 
 
     override fun onBindViewHolder(holder: ListSelectionViewHolder, position: Int) {
         holder.listPosition.text = (position + 1).toString()
-        holder.listTitle.text = lists.get(position).name
+        holder.listTitle.text = lists[position].name
+        holder.itemView.setOnClickListener {
+            clickListener.listItemClicked(lists[position])
+        }
     }
 
     fun addList(list: TaskList) {

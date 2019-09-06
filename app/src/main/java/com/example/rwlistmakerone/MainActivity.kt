@@ -1,6 +1,8 @@
 package com.example.rwlistmakerone
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
@@ -11,13 +13,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ListSelectionRecyclerViewAdapter.ListSelectionRecyclerViewClickListener {
 
     private val TAG = MainActivity::class.java.simpleName
 
@@ -34,7 +37,8 @@ class MainActivity : AppCompatActivity() {
 
         listsRecyclerView = findViewById<RecyclerView>(R.id.lists_recyclerview)
         listsRecyclerView.layoutManager = LinearLayoutManager(this)
-        listsRecyclerView.adapter = ListSelectionRecyclerViewAdapter(lists)
+        //listsRecyclerView.layoutManager = GridLayoutManager(this, 2)
+        listsRecyclerView.adapter = ListSelectionRecyclerViewAdapter(lists, this)
 
         setRecyclerViewItemTouchListener()
 
@@ -62,6 +66,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == LIST_DETAIL_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            data?.let {
+                listDataManager.saveList(data.getParcelableExtra(INTENT_LIST_KEY))
+                updateLists()
+            }
+        }
+    }
+
+    private fun updateLists() {
+        val lists = listDataManager.readLists()
+        listsRecyclerView.adapter = ListSelectionRecyclerViewAdapter(lists, this)
+
+    }
+
     private fun showCreateListDialog() {
         val dialogTitle = getString(R.string.name_of_list)
         val positiveButtonTitle = getString(R.string.create_list)
@@ -82,7 +103,10 @@ class MainActivity : AppCompatActivity() {
             val recyclerAdapter = listsRecyclerView.adapter as ListSelectionRecyclerViewAdapter
                 recyclerAdapter.addList(list)
 
+
             dialog.dismiss()
+            showListDetail(list)
+
         }
         builder.create().show()
 
@@ -137,5 +161,21 @@ class MainActivity : AppCompatActivity() {
 
         val editor = pref.edit()
         editor.commit()
+    }
+
+    private fun showListDetail(list: TaskList) {
+        val listDetailIntent = Intent(this, ListDetailActivity::class.java)
+        //listDetailIntent.putExtra(INTENT_LIST_KEY, list)
+        listDetailIntent.putExtra(INTENT_LIST_KEY, list)
+        startActivityForResult(listDetailIntent, LIST_DETAIL_REQUEST_CODE)
+
+    }
+
+    override fun listItemClicked(list: TaskList) {
+        showListDetail(list)
+    }
+    companion object {
+        const val INTENT_LIST_KEY = "list"
+        const val LIST_DETAIL_REQUEST_CODE = 123
     }
 }
