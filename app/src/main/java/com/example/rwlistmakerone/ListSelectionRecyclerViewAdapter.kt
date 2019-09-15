@@ -2,19 +2,16 @@ package com.example.rwlistmakerone
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
 class ListSelectionRecyclerViewAdapter(private val lists : ArrayList<TaskList>,
+
                                        val clickListener: ListSelectionRecyclerViewClickListener)
                                         : RecyclerView.Adapter<ListSelectionViewHolder>() {
 
-    val listTitles = arrayOf(
-        "blah", "blee", "bloop", "blah",
-        "blee", "bloop", "blah", "blee",
-        "bloop", "blah", "blee", "bloop",
-        "blah", "blee", "bloop", "blah",
-        "blee", "bloop", "blah", "blee",
-        "bloop", "blah", "blee", "bloop")
+
+
 
     interface ListSelectionRecyclerViewClickListener{
         fun listItemClicked(list:TaskList)
@@ -36,6 +33,7 @@ class ListSelectionRecyclerViewAdapter(private val lists : ArrayList<TaskList>,
         holder.itemView.setOnClickListener {
             clickListener.listItemClicked(lists[position])
         }
+
     }
 
     fun addList(list: TaskList) {
@@ -45,9 +43,17 @@ class ListSelectionRecyclerViewAdapter(private val lists : ArrayList<TaskList>,
 
     fun removeList(list: TaskList) {
         lists.remove(list)
-        //notifyItemInserted(lists.size-1)
         notifyItemRemoved(lists.size-1)
+        notifyDataSetChanged()
+
     }
+
+//    private fun remove(): (ListSelectionViewHolder) -> Unit = {
+//        layoutPosition.also { currentPosition ->
+//            items.removeAt(currentPosition)
+//            notifyDataSetChanged()
+//        }
+//    }
 
 
 }
